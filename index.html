@@ -1,0 +1,105 @@
+
+  
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather API</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+    integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  >
+
+  <style>
+    #result {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body style="background-image: url('./img.jpg'); background-size: cover;">
+  <div class="container my-5 d-flex flex-column align-items-center justify-content-center">
+    <h1 class="text-center">CloudCast</h1>
+
+    <p>
+      <b>Find your forecast in a flash.</b>
+      Type a city name to check the weather there.
+    </p>
+
+    <div class="d-flex my-3" style="width: min(450px, 100%);">
+      <input
+        type="text"
+        id="placeInput"
+        class="form-control me-2"
+        placeholder="Enter place name"
+      >
+      <button class="btn btn-primary" onclick="fetchData()">Search</button>
+    </div>
+
+    <div id="result" class="card my-5" style="width: min(450px, 100%);"></div>
+  </div>
+
+  <script>
+    const result = document.getElementById("result");
+
+    async function fetchData() {
+      const place = document.getElementById("placeInput").value.trim();
+
+      if (!place) {
+        result.innerHTML = `
+          <div class="card-body text-danger text-center">
+            Please enter a city name.
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(place)}&appid=8ac5c4d57ba6a4b3dfcf622700447b1e&units=metric`
+        );
+
+        if (!response.ok) {
+          throw new Error("City not found");
+        }
+
+        const allData = await response.json();
+
+        result.innerHTML = `
+          <div class="card-body text-center">
+            <h4 class="card-title">${allData.name}</h4>
+            <p class="card-text">${allData.main.temp} °C</p>
+            <p class="card-text">${allData.weather[0].description}</p>
+            <p class="card-text">Humidity: ${allData.main.humidity}%</p>
+            <p class="card-text">Wind speed: ${allData.wind.speed} m/s</p>
+          </div>
+        `;
+      } catch (error) {
+        result.innerHTML = `
+          <div class="card-body text-danger text-center">
+            ${error.message}
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
